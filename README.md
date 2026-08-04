@@ -145,17 +145,17 @@ RV32I 37개 Instruction을 Type별로 Simulation하여 ALU 연산, Memory Access
 
 <img src="images/rv32i_rtype_sim.png" width="900">
 
-- `ADD`, `SUB`, `SLL`, `SLT`, `SLTU`, `XOR`, `SRL`, `SRA`, `OR`, `AND` 연산 결과 확인
-- Signed 및 Unsigned 비교 연산 결과 확인
-- Logical Shift 및 Arithmetic Shift 결과 확인
+- 산술·논리 및 Shift 연산 결과의 Register File 저장 확인
+- `SLT`와 `SLTU`의 Signed/Unsigned 비교 결과 확인
+- `SRL`과 `SRA`의 Logical/Arithmetic Shift 결과 확인
 
 #### I-Type
 
 <img src="images/rv32i_itype_sim.png" width="900">
 
-- `ADDI`, `SLTI`, `SLTIU`, `XORI`, `ORI`, `ANDI` 연산 결과 확인
-- `SLLI`, `SRLI`, `SRAI` Shift 연산 결과 확인
-- `funct7[5]`에 따른 `SRLI` 및 `SRAI` 동작 구분 확인
+- Immediate를 사용한 산술·논리 연산 결과 확인
+- `SLTI`와 `SLTIU`의 Signed/Unsigned 비교 결과 확인
+- `SLLI`, `SRLI`, `SRAI`의 Shift 연산 및 `SRLI`/`SRAI` 구분 확인
 
 #### S-Type (Store)
 
@@ -170,8 +170,8 @@ RV32I 37개 Instruction을 Type별로 Simulation하여 ALU 연산, Memory Access
 <img src="images/rv32i_iltype_sim.png" width="900">
 
 - `LB`, `LH`, `LW`의 Byte, Halfword 및 Word 단위 Memory Read 확인
-- Address 하위 2-bit에 따른 Data 선택 결과 확인
-- Memory Read Data의 Register File 저장 확인
+- Address 하위 2-bit에 따른 Byte 및 Halfword 선택 확인
+- `LB`, `LH`의 Sign Extension 및 Register File 저장 확인
 
 <img src="images/rv32i_iltype_sim_u.png" width="900">
 
