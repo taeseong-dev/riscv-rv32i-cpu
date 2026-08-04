@@ -1,3 +1,59 @@
+# RISC-V RV32I CPU Design
+
+Verilog를 사용하여 RV32I 기본 명령어 37개를 지원하는 Single-Cycle CPU를 설계하고, 명령어별 동작을 Simulation으로 검증한 프로젝트입니다.
+
+---
+
+## Project Overview
+
+| 항목 | 내용 |
+|:---|:---|
+| Language | Verilog |
+| Development Environment | Vivado |
+| ISA | RISC-V RV32I |
+| Architecture | Single-Cycle |
+| Instructions | 37 Instructions |
+| Verification | Simulation |
+
+---
+
+## Contents
+
+- [RV32I Instruction Set](#rv32i-instruction-set)
+  - [Instruction Format](#instruction-format)
+- [Single-Cycle CPU](#single-cycle-cpu)
+  - [System Architecture](#system-architecture)
+  - [Instruction Type별 Datapath](#instruction-type별-datapath)
+  - [Simulation Verification](#simulation-verification)
+
+---
+
+## RV32I Instruction Set
+
+`FENCE`, `ECALL`, `EBREAK`를 제외한 RV32I 기본 명령어 37개 설계 및 Type별 동작 검증
+
+| Type | Instruction | 개수 |
+|:---|:---|:---:|
+| R-Type | ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND | 10 |
+| I-Type | ADDI, SLTI, SLTIU, XORI, ORI, ANDI, SLLI, SRLI, SRAI | 9 |
+| Load | LB, LH, LW, LBU, LHU | 5 |
+| Store | SB, SH, SW | 3 |
+| Branch | BEQ, BNE, BLT, BGE, BLTU, BGEU | 6 |
+| Upper Immediate | LUI, AUIPC | 2 |
+| Jump | JAL, JALR | 2 |
+| **Total** |  | **37** |
+
+### Instruction Format
+
+RV32I Instruction Type에 따른 Register, Function, Immediate 및 Opcode Field 구성
+
+- `opcode`를 통한 Instruction Type 구분
+- `funct3` 및 `funct7`을 통한 세부 연산 구분
+
+<img src="images/rv32i_data_format.png" width="700">
+
+---
+
 ## Single-Cycle CPU
 
 Instruction Fetch, Decode, Execute, Memory Access 및 Writeback을 하나의 Clock Cycle에서 수행하는 구조
