@@ -210,3 +210,116 @@ RV32I 37개 Instruction을 Type별로 Simulation하여 ALU 연산, Memory Access
 - Register File의 값과 Immediate를 더한 Jump Address 계산 확인
 - Jump Address에 따른 PC Update 확인
 - `PC + 4`의 Register File 저장 확인
+
+---
+
+---
+
+---
+
+## Multi-Cycle CPU
+
+Single-Cycle CPU의 명령어 실행 과정을 여러 Clock Cycle로 분리한 Multi-Cycle 구조
+
+- `FETCH`, `DECODE`, `EXECUTE`, `MEM`, `WB` State로 명령어 실행 단계 구성
+- Decode, Execute 및 Memory Access 결과를 Register에 저장
+- Instruction Type에 따라 필요한 State만 수행
+- Instruction Memory와 Data Memory를 분리한 Harvard 구조 적용
+
+### System Architecture
+
+<a href="images/rv32i_multicycle_bd.png">
+  <img src="images/rv32i_multicycle_bd.png" alt="RV32I Multi-Cycle Architecture">
+</a>
+
+각 단계에서 생성된 데이터를 Register에 저장하여 다음 State에서 사용하도록 Datapath 구성
+
+| Register | 저장 값 | 역할 |
+|:---|:---|:---|
+| `rd1 reg` | Register File의 RS1 Data | ALU 첫 번째 입력 및 JALR Address 계산 |
+| `rd2 reg` | Register File의 RS2 Data | ALU 두 번째 입력 및 Store Data 전달 |
+| `imm reg` | Immediate | ALU 연산, Memory Address 및 다음 PC 계산 |
+| `alu reg` | ALU 연산 결과 | Load/Store의 Data Memory Address 유지 |
+| `dwdata reg` | Register File의 RS2 Data | Store Instruction의 Memory Write Data 유지 |
+| `next pc reg` | 계산된 다음 PC | 다음 `FETCH` State에서 PC 갱신 |
+| `drdata reg` | Data Memory Read Data | Load Instruction의 Writeback Data 유지 |
+
+### State Operation
+
+| State | Operation |
+|:---|:---|
+| `FETCH` | 계산된 다음 PC를 PC Register에 저장하고 해당 주소의 Instruction 출력 |
+| `DECODE` | Register File Data Read, Immediate 생성 및 Decode Register 저장 |
+| `EXECUTE` | ALU 연산, Branch 조건 비교, Memory Address 및 다음 PC 계산 |
+| `MEM` | Load/Store Instruction의 Data Memory 접근 |
+| `WB` | Data Memory에서 읽은 값을 Register File에 저장 |
+
+### Control Unit FSM
+
+<a href="images/rv32i_multicycle_fsm.png">
+  <img src="images/rv32i_multicycle_fsm.png" alt="RV32I Multi-Cycle Control Unit FSM" width="500">
+</a>
+
+Control Unit의 FSM을 통해 현재 State와 Instruction Type에 따른 Control Signal 생성 및 State 전환
+
+#### R-Type / I-Type / Branch / Upper Immediate / Jump
+
+```text
+FETCH → DECODE → EXECUTE → FETCH
+```
+
+- R-Type 및 I-Type의 ALU 연산 수행
+- Branch 조건 비교 및 다음 PC 결정
+- LUI, AUIPC, JAL 및 JALR 결과 처리
+- Register Write가 필요한 Instruction은 `EXECUTE` State에서 결과 저장
+
+#### S-Type (Store)
+
+```text
+FETCH → DECODE → EXECUTE → MEM → FETCH
+```
+
+- `EXECUTE`: `RS1 + Immediate`를 통한 Memory Address 계산
+- `MEM`: `dwdata reg`에 저장된 RS2 Data를 Data Memory에 저장
+
+#### I-Type (Load)
+
+```text
+FETCH → DECODE → EXECUTE → MEM → WB → FETCH
+```
+
+- `EXECUTE`: `RS1 + Immediate`를 통한 Memory Address 계산
+- `MEM`: Data Memory Read 및 `drdata reg` 저장
+- `WB`: `drdata reg`의 값을 Register File에 저장
+
+> Writeback MUX는 ALU Result, Memory Read Data, Immediate, `PC + Immediate` 및 `PC + 4` 중 Register File에 저장할 값을 선택합니다. FSM의 `WB` State는 Load Instruction의 Memory Read Data를 저장할 때 사용합니다.
+
+### Simulation Verification
+
+Instruction Type에 따른 State 전환과 단계별 Register 저장 동작을 Simulation으로 확인
+
+#### R-Type / I-Type
+
+<img src="images/rv32i_multicycle_ri_sim.png">
+
+- `FETCH → DECODE → EXECUTE → FETCH` State 전환 확인
+- Decode 단계에서 RS1, RS2 및 Immediate Data 저장 확인
+- Execute 단계에서 ALU 연산 수행 및 Register File Write 확인
+
+#### S-Type (Store)
+
+<img src="images/rv32i_multicycle_store_sim.png">
+
+- `FETCH → DECODE → EXECUTE → MEM → FETCH` State 전환 확인
+- Execute 단계에서 Memory Address 계산 확인
+- `alu reg`와 `dwdata reg`에 Address 및 Store Data 저장 확인
+- MEM 단계에서 Data Memory Write 확인
+
+#### I-Type (Load)
+
+<img src="images/rv32i_multicycle_load_sim.png">
+
+- `FETCH → DECODE → EXECUTE → MEM → WB → FETCH` State 전환 확인
+- Execute 단계에서 Memory Address 계산 확인
+- MEM 단계에서 Memory Read Data의 `drdata reg` 저장 확인
+- WB 단계에서 Load Data의 Register File 저장 확인
