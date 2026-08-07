@@ -2,7 +2,7 @@
 
 Verilog를 사용하여 RV32I 기본 명령어 37개를 지원하는 Single-Cycle CPU를 설계하고, 명령어 실행 단계를 여러 Clock Cycle로 분리한 Multi-Cycle CPU로 확장한 프로젝트입니다.
 
-Single-Cycle CPU에서는 Instruction Type별 Datapath와 명령어 동작을 검증하였으며, Multi-Cycle CPU에서는 FSM에 따른 State 전환과 단계별 Register 저장 동작을 Simulation으로 확인하였습니다.
+Single-Cycle CPU에서는 Instruction Type별 Datapath와 명령어 동작을 검증하였으며, Multi-Cycle CPU에서는 FSM에 따른 State 전환과 단계별 명령어 실행 동작을 Simulation으로 확인하였습니다.
 
 ---
 
