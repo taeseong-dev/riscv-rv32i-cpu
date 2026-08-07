@@ -322,8 +322,7 @@ Instruction을 실행하여 State 전환과 Register File, Data Memory 및 PC �
 
 <img src="images/rv32i_multicycle_branch_sim.png" width="900">
 
-- `BEQ`에서 `x5 == x5` 조건이 성립하여 Branch 수행
-- PC가 `0x04`에서 `0x0C`로 갱신되어 `0x08`의 Instruction을 건너뛰는 동작 확인
+- `BEQ`에서 `x5 == x5` 조건이 성립하여 PC가 `0x04`에서 `0x0C`로 갱신되는 동작 확인
 - Branch 이후 `x6`에 `0x2`가 저장된 결과 확인
 
 #### Jump
@@ -331,8 +330,7 @@ Instruction을 실행하여 State 전환과 Register File, Data Memory 및 PC �
 <img src="images/rv32i_multicycle_jump_sim.png" width="900">
 
 - `JAL` 실행 시 PC가 `0x00`에서 `0x08`로 갱신되고, `PC + 4`인 `0x04`를 `x1`에 저장
-- `JALR` 실행 시 `x2`의 값에 따라 PC가 `0x10`에서 `0x18`로 갱신되고, `PC + 4`인 `0x14`를 `x1`에 저장
-- Jump 대상 사이의 Instruction을 건너뛰고 최종적으로 `x5`에 `0x3`이 저장된 결과 확인
+- `JALR` 실행 시 PC가 `0x10`에서 `0x18`로 갱신되고, `PC + 4`인 `0x14`를 `x1`에 저장
 
 ---
 
@@ -344,8 +342,3 @@ Instruction을 실행하여 State 전환과 Register File, Data Memory 및 PC �
 | Control 방식 | 조합논리 기반 Control Signal 생성 | FSM 기반 State 및 Control Signal 생성 |
 | Datapath Data | 하나의 Cycle에서 조합논리를 통해 전달 | 단계별 Register에 저장 후 다음 State에서 사용 |
 | Clock Cycle | Instruction당 1 Cycle | Instruction Type에 따라 3~5 Cycle |
-| Critical Path | Instruction 전체 Datapath 포함 | State별 Datapath로 분리 |
-| Memory Access | 하나의 Cycle에서 연산과 Memory Access 수행 | `MEM` State에서 Data Memory 접근 |
-| Load Writeback | 동일 Cycle에서 수행 | `WB` State에서 수행 |
-
-Single-Cycle CPU 설계를 통해 RV32I Instruction Type별 Datapath와 Control Signal의 동작을 확인하였으며, 이를 Multi-Cycle 구조로 확장하여 명령어 실행 단계를 State별로 분리하고 중간 결과를 Register에 저장하는 구조를 구현하였습니다.
