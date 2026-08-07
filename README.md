@@ -14,7 +14,7 @@ Single-Cycle CPU에서는 Instruction Type별 Datapath와 명령어 동작을 �
 | Development Environment | Vivado |
 | ISA | RISC-V RV32I |
 | Architecture | Single-Cycle, Multi-Cycle |
-| Instructions | 37 Instructions |
+| Supported Instructions | 37 |
 | Verification | Simulation |
 
 ---
@@ -88,22 +88,22 @@ Instruction Type에 따라 사용되는 Data Path와 Control Signal 구성
 
 <img src="images/rv32i_rtype.png" width="900">
 
-Register File에서 읽은 두 값을 ALU 입력으로 사용하고, 연산 결과를 Register File에 저장
+Register File에서 읽은 두 값을 ALU에 입력하고, 연산 결과를 Register File에 저장
 
 #### S-Type (Store)
 
 <img src="images/rv32i_stype.png" width="900">
 
-Register File에서 읽은 값과 Immediate를 더하여 Memory Address를 계산하고, Register File의 Data를 Data Memory에 저장
+Register File에서 읽은 값과 Immediate를 더하여 Memory Address를 계산하고, 저장할 Register 값을 Data Memory에 기록
 
 #### I-Type (Immediate)
 
 <img src="images/rv32i_itype.png" width="900">
 
-- Register File에서 읽은 값과 Immediate를 ALU 입력으로 사용
+- Register File에서 읽은 값과 Immediate를 ALU에 입력하여 연산 수행
 - ALU 연산 결과를 Register File에 저장
 - `funct3`에 따른 ALU 연산 구분
-- `funct7[5]`를 사용한 `SRLI`와 `SRAI` 구분
+- `funct7[5]`를 통한 `SRLI`와 `SRAI` 구분
 
 #### I-Type (Load)
 
@@ -115,8 +115,8 @@ Register File에서 읽은 값과 Immediate를 더하여 Memory Address를 계�
 
 <img src="images/rv32i_btype.png" width="900">
 
-- Register File에서 읽은 두 값의 Branch 조건 비교
-- 조건에 따른 다음 PC 값 결정
+- Register File에서 읽은 두 값을 비교하여 Branch 조건 판별
+- 비교 결과에 따라 다음 PC 결정
 - 그림은 조건이 참인 경우로, `PC + Immediate`를 다음 PC로 선택
 
 #### U-Type (LUI)
@@ -263,7 +263,7 @@ Single-Cycle CPU의 명령어 실행 과정을 여러 Clock Cycle로 분리한 �
   <img src="images/rv32i_multicycle_fsm.png" alt="RV32I Multi-Cycle Control Unit FSM" width="500">
 </a>
 
-Control Unit의 FSM을 통해 현재 State와 Instruction Type에 따른 Control Signal 생성 및 State 전환
+현재 State와 Instruction Type에 따라 Control Signal과 다음 State 결정
 
 #### R-Type / I-Type / Branch / Upper Immediate / Jump
 
@@ -271,7 +271,7 @@ Control Unit의 FSM을 통해 현재 State와 Instruction Type에 따른 Control
 FETCH → DECODE → EXECUTE → FETCH
 ```
 
-- R-Type 및 I-Type의 ALU 연산 수행
+- R-Type 및 I-Type의 ALU 연산과 결과 저장
 - Branch 조건 비교 및 다음 PC 결정
 - LUI, AUIPC, JAL 및 JALR 결과 처리
 - Register Write가 필요한 Instruction은 `EXECUTE` State에서 결과 저장
@@ -295,19 +295,19 @@ FETCH → DECODE → EXECUTE → MEM → WB → FETCH
 - `MEM`: Data Memory Read 및 Read Data 저장
 - `WB`: 저장된 Read Data를 Register File에 저장
 
-> Writeback MUX는 ALU Result, Memory Read Data, Immediate, `PC + Immediate` 및 `PC + 4` 중 Register File에 저장할 값을 선택합니다. FSM의 `WB` State는 Load Instruction의 Memory Read Data를 저장할 때 사용합니다.
+> Writeback MUX는 ALU Result, Memory Read Data, Immediate, `PC + Immediate` 및 `PC + 4` 중 Register File에 저장할 값을 선택
+> `WB` State는 Load Instruction의 Memory Read Data를 저장에 사용
 
 ### Multi-Cycle Simulation Verification
 
-대표 Instruction 실행을 통해 Multi-Cycle CPU의 State 전환과 Register File, Data Memory 및 PC 갱신 동작 확인
+Instruction을 실행하여 State 전환과 Register File, Data Memory 및 PC 갱신 동작 확인
 
 #### ALU Operation
 
 <img src="images/rv32i_multicycle_alu_sim.png" width="900">
 
-- `LUI`, `ADDI`, `ADD`를 순차 실행하여 Immediate 및 Register Data를 사용한 연산 확인
+- `LUI`, `ADDI`, `ADD`의 `FETCH → DECODE → EXECUTE` State 전환 확인
 - 연산 결과 `x5 = 0x12345000`, `x6 = 0x4`, `x7 = 0x12345004` 저장 확인
-- 각 Instruction의 `FETCH → DECODE → EXECUTE` State 전환 확인
 
 #### Memory Access
 
